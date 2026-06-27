@@ -1,0 +1,149 @@
+---
+title: PHOSA
+subtitle: Photorealistic 3D Sign Avatar Modeling and Benchmark
+authors:
+  - name: Haodong Wang
+    institution: University of Science and Technology of China
+  - name: Hezhen Hu
+    institution: University of Texas at Austin
+  - name: Wengang Zhou
+    institution: University of Science and Technology of China
+  - name: Houqiang Li
+    institution: University of Science and Technology of China
+conference: ECCV 2026
+links:
+  - name: Paper
+    url: ""
+    icon: ri:file-pdf-2-line
+  - name: arXiv
+    url: ""
+    icon: ri:article-line
+  - name: Dataset
+    url: "https://huggingface.co/datasets/naaaaapi/MVSign"
+    icon: ri:database-2-line
+  - name: Code (coming soon)
+    url: ""
+    icon: ri:github-line
+theme: light
+favicon: favicon.svg
+description: PHOSA introduces MVSign, a multi-view Chinese Sign Language benchmark co-designed with Deaf experts, and a decoupled photorealistic avatar representation for expressive hands and faces.
+---
+
+import Wide from "./components/Wide.astro";
+import Figure from "./components/Figure.astro";
+import Picture from "./components/Picture.astro";
+import DatasetVideoCarousel from "./components/DatasetVideoCarousel.astro";
+import AnnotationVideoDuo from "./components/AnnotationVideoDuo.astro";
+
+<section id="abstract" className="content-section intro-section">
+  <p className="section-label">Abstract</p>
+  <p>In this work, we focus on photorealistic sign avatar modeling, which is crucial for effective communication with the Deaf community and is characterized by complex hand gestures and nuanced facial expressions. To this end, we introduce <strong>MVSign</strong>, the first multi-view Chinese sign language dataset co-designed with Deaf experts, featuring diverse gestures and rich annotations. For precise SMPL-X annotation, we develop a hybrid fitting pipeline that produces accurate body, hand, and facial parameters and can also be applied to the monocular setting. Building on MVSign, we propose a decoupled sign avatar representation that isolates body, head, and hand components to capture complex articulations, together with a motion-aware sampling strategy to handle motion blur and balance gesture diversity. Extensive experiments demonstrate that our method achieves high-fidelity visual results on MVSign, particularly in detailed hand and facial regions, and generalizes well to in-the-wild monocular sign language videos. The dataset and code will be publicly released.</p>
+</section>
+
+<section id="dataset" className="content-section dataset-section">
+  <div className="section-heading-row">
+    <div>
+      <p className="section-label">MVSign Dataset</p>
+      <h2>A sign-specific capture benchmark, not a generic human motion set.</h2>
+    </div>
+    <p className="section-aside">MVSign captures both basic hand-shape primitives and continuous sign sentences, so avatars learn isolated articulation and natural transitions.</p>
+  </div>
+
+  <div className="dataset-feature-grid">
+    <article>
+      <span className="feature-index">01</span>
+      <h3>Designed with Deaf experts</h3>
+      <p>The capture protocol follows sign-language components such as hand shapes, movement, orientation, location, and facial expression.</p>
+    </article>
+    <article>
+      <span className="feature-index">02</span>
+      <h3>16 calibrated views</h3>
+      <p>One frontal camera, ten lateral cameras, and five dedicated head views cover body motion, hand articulation, facial expression, and mouthing.</p>
+    </article>
+    <article>
+      <span className="feature-index">03</span>
+      <h3>Rich avatar-ready labels</h3>
+      <p>Each sequence includes matting, body-part segmentation, 3D keypoints, and expressive SMPL-X parameters for body, hands, and face.</p>
+    </article>
+  </div>
+
+  <div className="camera-panel" aria-label="MVSign camera layout summary">
+    <div className="camera-copy">
+      <h3>Capture layout optimized for sign avatar modeling</h3>
+      <p>The rig records synchronized 2048 x 2448 RGB images at 25 FPS. It balances broad body coverage with focused head portraits and close side views, which are essential for resolving hand self-occlusion.</p>
+    </div>
+    <div className="camera-rig" aria-hidden="true">
+      <span className="camera-dot c1">F</span>
+      <span className="camera-dot c2">2</span>
+      <span className="camera-dot c3">3</span>
+      <span className="camera-dot c4">4</span>
+      <span className="camera-dot c5">5</span>
+      <span className="camera-dot c6">6</span>
+      <span className="camera-dot c7">7</span>
+      <span className="camera-dot c8">8</span>
+      <span className="camera-dot c9">9</span>
+      <span className="camera-dot c10">10</span>
+      <span className="camera-dot c11">11</span>
+      <span className="camera-dot head h1">H</span>
+      <span className="camera-dot head h2">H</span>
+      <span className="camera-dot head h3">H</span>
+      <span className="camera-dot head h4">H</span>
+      <span className="camera-dot head h5">H</span>
+      <span className="performer-mark">Signer</span>
+    </div>
+  </div>
+
+  <DatasetVideoCarousel />
+
+</section>
+
+<section id="annotation" className="content-section alt-section">
+  <p className="section-label">Hybrid SMPL-X Annotation</p>
+  <h2>Multi-model fitting for expressive hands and nuanced faces.</h2>
+  <p>PHOSA combines complementary estimators instead of relying on a single whole-body detector. DWPose provides dense 2D keypoints, HaMeR strengthens MANO hand estimates, multi-view triangulation recovers 3D supervision, and INFERNO refines facial expressions. Temporal initialization and SmoothNet reduce high-frequency artifacts across frames.</p>
+
+
+  <Wide>
+    <Figure>
+      <Picture slot="figure" src="paper-assets/annotation_pipeline.pdf" alt="PHOSA hybrid SMPL-X fitting pipeline fusing multi-view pose, hand mesh, triangulation, and facial expression estimation." />
+      <Fragment slot="caption">The annotation pipeline is also applicable to monocular RGB settings by removing the triangulation stage.</Fragment>
+    </Figure>
+    <AnnotationVideoDuo />
+  </Wide>
+</section>
+
+<section id="method" className="content-section method-section">
+  <p className="section-label">PHOSA Method</p>
+  <h2>Decouple the avatar where sign language carries meaning.</h2>
+  <p>Existing avatar models often learn a single whole-body representation, forcing fine hand and facial motion to compete with coarse body movement. PHOSA separates Gaussian maps into body, head, and hands, then applies partial hand kinematic decoupling so hand pose maps depend on hand gestures rather than global body pose.</p>
+
+  <div className="method-grid">
+    <article><h3>Body branch</h3><p>Captures global pose-conditioned appearance and clothing motion.</p></article>
+    <article><h3>Head branch</h3><p>Focuses network capacity on facial expression and mouthing.</p></article>
+    <article><h3>Hand branch</h3><p>Fixes body joints while preserving hand mobility for better gesture generalization.</p></article>
+    <article><h3>Motion-aware sampling</h3><p>Filters motion-blurred frames and balances gesture categories during training.</p></article>
+  </div>
+
+  <Figure>
+    <Picture slot="figure" src="paper-assets/avatar_pipeline.pdf" alt="PHOSA avatar pipeline with body, head, and hand StyleUNet branches predicting Gaussian maps for photorealistic sign avatar rendering." />
+    <Fragment slot="caption">PHOSA predicts pose-dependent Gaussian attributes in canonical space, deforms them with LBS, and renders the animated avatar through differentiable rasterization.</Fragment>
+  </Figure>
+</section>
+
+<section id="results" className="content-section results-section">
+  <h2>Benchmark Results</h2>
+</section>
+
+<section id="citation" className="content-section citation-section">
+  <p className="section-label">Citation</p>
+  <h2>BibTeX</h2>
+
+```bibtex
+@inproceedings{wang2026phosa,
+  title     = {PHOSA: Photorealistic 3D Sign Avatar Modeling and Benchmark},
+  author    = {Wang, Haodong and Hu, Hezhen and Zhou, Wengang and Li, Houqiang},
+  booktitle = {European Conference on Computer Vision},
+  year      = {2026}
+}
+```
+</section>

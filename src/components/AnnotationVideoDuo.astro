@@ -1,0 +1,294 @@
+---
+import { Icon } from "astro-icon/components";
+
+const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : import.meta.env.BASE_URL + "/";
+const withBase = (path: string) => baseUrl + path;
+
+const groups = [
+  {
+    key: "smplx",
+    title: "SMPL-X Annotation",
+    videos: [
+      { src: withBase("resources/annotations_smplx/female2_smplx.mp4"), label: "SMPL-X 1" },
+      { src: withBase("resources/annotations_smplx/female3_smplx.mp4"), label: "SMPL-X 2" },
+      { src: withBase("resources/annotations_smplx/male1_smplx.mp4"), label: "SMPL-X 3" },
+    ],
+  },
+  {
+    key: "segmentation",
+    title: "Body-Part Segmentation",
+    videos: [
+      { src: withBase("resources/annotations_segmentation/seg_video1.mp4"), label: "Segmentation 1" },
+      { src: withBase("resources/annotations_segmentation/seg_video2.mp4"), label: "Segmentation 2" },
+      { src: withBase("resources/annotations_segmentation/seg_video6.mp4"), label: "Segmentation 3" },
+    ],
+  },
+];
+---
+
+<section class="annotation-video-duo" aria-label="MVSign annotation video examples">
+  {
+    groups.map((group) => (
+      <article class="annotation-video-card" data-carousel={group.key} tabindex="0">
+        <header>
+          <div>
+            <h3>{group.title}</h3>
+          </div>
+        </header>
+
+        <div class="annotation-video-stage">
+          {group.videos.map((video, index) => (
+            <figure class:list={["annotation-video-slide", { active: index === 0 }]} data-index={index}>
+              <video
+                src={video.src}
+                muted
+                loop
+                playsinline
+                controls
+                preload={index === 0 ? "auto" : "metadata"}
+                aria-label={`${group.title} ${video.label}`}
+              />
+            </figure>
+          ))}
+        </div>
+
+        <div class="annotation-video-controls">
+          <button class="annotation-video-prev" type="button" aria-label={`Show previous ${group.title} video`}>
+            <Icon name="ri:arrow-left-s-line" aria-hidden="true" />
+          </button>
+          <div class="annotation-video-dots" aria-label={`${group.title} pagination`}>
+            {group.videos.map((video, index) => (
+              <button
+                class:list={["annotation-video-dot", { active: index === 0 }]}
+                type="button"
+                aria-label={`Show ${video.label}`}
+                data-index={index}
+              />
+            ))}
+          </div>
+          <button class="annotation-video-next" type="button" aria-label={`Show next ${group.title} video`}>
+            <Icon name="ri:arrow-right-s-line" aria-hidden="true" />
+          </button>
+        </div>
+      </article>
+    ))
+  }
+</section>
+
+<script>
+  const annotationCarousels = document.querySelectorAll(
+    ".annotation-video-card",
+  );
+
+  annotationCarousels.forEach((carousel) => {
+    const slides = Array.from(
+      carousel.querySelectorAll(".annotation-video-slide"),
+    ) as HTMLElement[];
+    const videos = slides.map((slide) => slide.querySelector("video"));
+    const dots = Array.from(
+      carousel.querySelectorAll(".annotation-video-dot"),
+    ) as HTMLButtonElement[];
+    const prev = carousel.querySelector(
+      ".annotation-video-prev",
+    ) as HTMLButtonElement | null;
+    const next = carousel.querySelector(
+      ".annotation-video-next",
+    ) as HTMLButtonElement | null;
+
+    if (!prev || !next || slides.length === 0) {
+      return;
+    }
+
+    let current = 0;
+
+    function syncPlayback() {
+      videos.forEach((video, index) => {
+        if (!video) {
+          return;
+        }
+
+        if (index === current) {
+          void video.play().catch(() => undefined);
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }
+
+    function showSlide(index: number) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === current);
+        dot.setAttribute("aria-current", dotIndex === current ? "true" : "false");
+      });
+      syncPlayback();
+    }
+
+    prev.addEventListener("click", () => showSlide(current - 1));
+    next.addEventListener("click", () => showSlide(current + 1));
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        showSlide(Number(dot.dataset.index ?? "0"));
+      });
+    });
+
+    carousel.addEventListener("keydown", (event) => {
+      if (!(event instanceof KeyboardEvent)) {
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        showSlide(current - 1);
+      }
+      if (event.key === "ArrowRight") {
+        showSlide(current + 1);
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          syncPlayback();
+        } else {
+          videos.forEach((video) => video?.pause());
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(carousel);
+    showSlide(0);
+  });
+</script>
+
+<style>
+  .annotation-video-duo {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2rem auto 0;
+  }
+
+  .annotation-video-card {
+    border: 1px solid var(--phosa-line);
+    border-radius: 8px;
+    background: var(--phosa-panel);
+    padding: 1rem;
+    outline: none;
+  }
+
+  .annotation-video-card header {
+    margin-bottom: 0.75rem;
+  }
+
+  .annotation-video-card h3 {
+    margin: 0;
+    color: var(--phosa-ink);
+    font-size: 1.15rem;
+    font-weight: 850;
+  }
+
+
+  .annotation-video-stage {
+    position: relative;
+    aspect-ratio: 1920 / 766;
+    overflow: hidden;
+    border: 1px solid rgb(23 21 18 / 14%);
+    border-radius: 8px;
+    background: transparent;
+  }
+
+  .annotation-video-slide {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(1rem);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+  }
+
+  .annotation-video-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .annotation-video-slide video {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    object-fit: cover;
+  }
+
+  .annotation-video-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-top: 0.85rem;
+  }
+
+  .annotation-video-prev,
+  .annotation-video-next,
+  .annotation-video-dot {
+    border: 1px solid var(--phosa-line);
+    background: #fffaf1;
+    color: var(--phosa-ink);
+  }
+
+  .annotation-video-prev,
+  .annotation-video-next {
+    display: grid;
+    place-items: center;
+    width: 2.45rem;
+    height: 2.45rem;
+    border-radius: 8px;
+  }
+
+  .annotation-video-prev:hover,
+  .annotation-video-next:hover,
+  .annotation-video-dot:hover,
+  .annotation-video-dot.active {
+    border-color: var(--phosa-teal);
+    background: #eff8f6;
+    color: var(--phosa-teal);
+  }
+
+  .annotation-video-prev svg,
+  .annotation-video-next svg {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .annotation-video-dots {
+    display: flex;
+    gap: 0.45rem;
+  }
+
+  .annotation-video-dot {
+    width: 0.68rem;
+    height: 0.68rem;
+    border-radius: 999px;
+    padding: 0;
+  }
+
+  .annotation-video-dot.active {
+    width: 1.55rem;
+  }
+
+  @media (max-width: 900px) {
+    .annotation-video-duo {
+      grid-template-columns: 1fr;
+    }
+
+  }
+</style>

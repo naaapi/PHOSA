@@ -1,0 +1,273 @@
+---
+import { Icon } from "astro-icon/components";
+
+const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : import.meta.env.BASE_URL + "/";
+const withBase = (path: string) => baseUrl + path;
+
+const videos = [
+  {
+    src: withBase("resources/visual_dataset/mv_video_female1.mp4"),
+    label: "Signer 1",
+    detail: "Multi-view capture sample",
+  },
+  {
+    src: withBase("resources/visual_dataset/mv_video_female2.mp4"),
+    label: "Signer 2",
+    detail: "Multi-view capture sample",
+  },
+  {
+    src: withBase("resources/visual_dataset/mv_video_female3.mp4"),
+    label: "Signer 3",
+    detail: "Multi-view capture sample",
+  },
+  {
+    src: withBase("resources/visual_dataset/mv_video_male1.mp4"),
+    label: "Signer 4",
+    detail: "Multi-view capture sample",
+  },
+  {
+    src: withBase("resources/visual_dataset/mv_video_male2.mp4"),
+    label: "Signer 5",
+    detail: "Multi-view capture sample",
+  },
+];
+---
+
+<section class="dataset-video-carousel" aria-label="MVSign dataset video carousel" tabindex="0">
+  <div class="dataset-video-stage">
+    {
+      videos.map((video, index) => (
+        <figure class:list={["dataset-video-slide", { active: index === 0 }]} data-index={index}>
+          <video
+            src={video.src}
+            muted
+            loop
+            playsinline
+            controls
+            preload={index === 0 ? "auto" : "metadata"}
+            aria-label={`${video.label} MVSign dataset video`}
+          />
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="dataset-video-controls">
+    <button class="dataset-video-prev" type="button" aria-label="Show previous MVSign video">
+      <Icon name="ri:arrow-left-s-line" aria-hidden="true" />
+    </button>
+    <div class="dataset-video-dots" aria-label="Video pagination">
+      {
+        videos.map((video, index) => (
+          <button
+            class:list={["dataset-video-dot", { active: index === 0 }]}
+            type="button"
+            aria-label={`Show ${video.label}`}
+            data-index={index}
+          />
+        ))
+      }
+    </div>
+    <button class="dataset-video-next" type="button" aria-label="Show next MVSign video">
+      <Icon name="ri:arrow-right-s-line" aria-hidden="true" />
+    </button>
+  </div>
+</section>
+
+<script>
+  const carousels = document.querySelectorAll(".dataset-video-carousel");
+
+  carousels.forEach((carousel) => {
+    const slides = Array.from(
+      carousel.querySelectorAll(".dataset-video-slide"),
+    ) as HTMLElement[];
+    const videos = slides.map((slide) => slide.querySelector("video"));
+    const dots = Array.from(
+      carousel.querySelectorAll(".dataset-video-dot"),
+    ) as HTMLButtonElement[];
+    const prev = carousel.querySelector(
+      ".dataset-video-prev",
+    ) as HTMLButtonElement | null;
+    const next = carousel.querySelector(
+      ".dataset-video-next",
+    ) as HTMLButtonElement | null;
+
+    if (!prev || !next || slides.length === 0) {
+      return;
+    }
+
+    let current = 0;
+
+    function syncPlayback() {
+      videos.forEach((video, index) => {
+        if (!video) {
+          return;
+        }
+
+        if (index === current) {
+          void video.play().catch(() => undefined);
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }
+
+    function showSlide(index: number) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === current);
+        dot.setAttribute("aria-current", dotIndex === current ? "true" : "false");
+      });
+      syncPlayback();
+    }
+
+    prev.addEventListener("click", () => showSlide(current - 1));
+    next.addEventListener("click", () => showSlide(current + 1));
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        showSlide(Number(dot.dataset.index ?? "0"));
+      });
+    });
+
+    carousel.addEventListener("keydown", (event) => {
+      if (!(event instanceof KeyboardEvent)) {
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        showSlide(current - 1);
+      }
+      if (event.key === "ArrowRight") {
+        showSlide(current + 1);
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          syncPlayback();
+        } else {
+          videos.forEach((video) => video?.pause());
+        }
+      },
+      { threshold: 0.45 },
+    );
+
+    observer.observe(carousel);
+    showSlide(0);
+  });
+</script>
+
+<style>
+  .dataset-video-carousel {
+    margin: 2rem auto;
+    outline: none;
+  }
+
+  .dataset-video-stage {
+    position: relative;
+    width: min(100%, 34rem);
+    aspect-ratio: 1080 / 1290;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid var(--phosa-line);
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: 0 24px 80px rgb(23 21 18 / 16%);
+  }
+
+  .dataset-video-slide {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(1.5rem);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+  }
+
+  .dataset-video-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .dataset-video-slide video {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    object-fit: cover;
+  }
+
+  .dataset-video-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .dataset-video-prev,
+  .dataset-video-next,
+  .dataset-video-dot {
+    border: 1px solid var(--phosa-line);
+    background: var(--phosa-panel);
+    color: var(--phosa-ink);
+  }
+
+  .dataset-video-prev,
+  .dataset-video-next {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 8px;
+  }
+
+  .dataset-video-prev:hover,
+  .dataset-video-next:hover,
+  .dataset-video-dot:hover,
+  .dataset-video-dot.active {
+    border-color: var(--phosa-teal);
+    background: #eff8f6;
+    color: var(--phosa-teal);
+  }
+
+  .dataset-video-prev svg,
+  .dataset-video-next svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .dataset-video-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .dataset-video-dot {
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 999px;
+    padding: 0;
+  }
+
+  .dataset-video-dot.active {
+    width: 1.8rem;
+  }
+
+  @media (max-width: 720px) {
+    .dataset-video-stage {
+      width: min(100%, 26rem);
+    }
+  }
+</style>

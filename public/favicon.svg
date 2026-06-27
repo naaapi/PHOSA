@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="PHOSA">
+  <rect width="128" height="128" rx="20" fill="#161616" />
+  <path d="M26 78c11-30 26-45 45-45 14 0 25 7 31 21" fill="none" stroke="#d5962a" stroke-width="10" stroke-linecap="round" />
+  <path d="M27 83h21c8 0 13-4 16-12l7-20 7 20c3 8 8 12 16 12h8" fill="none" stroke="#fffaf0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="92" cy="38" r="8" fill="#b63c34" />
+  <circle cx="38" cy="39" r="8" fill="#006d77" />
+</svg>
