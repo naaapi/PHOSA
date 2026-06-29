@@ -31,9 +31,11 @@ description: PHOSA introduces MVSign, a multi-view Chinese Sign Language benchma
 
 import Wide from "./components/Wide.astro";
 import Figure from "./components/Figure.astro";
-import Picture from "./components/Picture.astro";
+import PublicImage from "./components/PublicImage.astro";
 import DatasetVideoCarousel from "./components/DatasetVideoCarousel.astro";
 import AnnotationVideoDuo from "./components/AnnotationVideoDuo.astro";
+import ResultsVideoCarousels from "./components/ResultsVideoCarousels.astro";
+import BenchmarkResultsTable from "./components/BenchmarkResultsTable.astro";
 
 <section id="abstract" className="content-section intro-section">
   <p className="section-label">Abstract</p>
@@ -44,9 +46,7 @@ import AnnotationVideoDuo from "./components/AnnotationVideoDuo.astro";
   <div className="section-heading-row">
     <div>
       <p className="section-label">MVSign Dataset</p>
-      <h2>A sign-specific capture benchmark, not a generic human motion set.</h2>
     </div>
-    <p className="section-aside">MVSign captures both basic hand-shape primitives and continuous sign sentences, so avatars learn isolated articulation and natural transitions.</p>
   </div>
 
   <div className="dataset-feature-grid">
@@ -67,46 +67,18 @@ import AnnotationVideoDuo from "./components/AnnotationVideoDuo.astro";
     </article>
   </div>
 
-  <div className="camera-panel" aria-label="MVSign camera layout summary">
-    <div className="camera-copy">
-      <h3>Capture layout optimized for sign avatar modeling</h3>
-      <p>The rig records synchronized 2048 x 2448 RGB images at 25 FPS. It balances broad body coverage with focused head portraits and close side views, which are essential for resolving hand self-occlusion.</p>
-    </div>
-    <div className="camera-rig" aria-hidden="true">
-      <span className="camera-dot c1">F</span>
-      <span className="camera-dot c2">2</span>
-      <span className="camera-dot c3">3</span>
-      <span className="camera-dot c4">4</span>
-      <span className="camera-dot c5">5</span>
-      <span className="camera-dot c6">6</span>
-      <span className="camera-dot c7">7</span>
-      <span className="camera-dot c8">8</span>
-      <span className="camera-dot c9">9</span>
-      <span className="camera-dot c10">10</span>
-      <span className="camera-dot c11">11</span>
-      <span className="camera-dot head h1">H</span>
-      <span className="camera-dot head h2">H</span>
-      <span className="camera-dot head h3">H</span>
-      <span className="camera-dot head h4">H</span>
-      <span className="camera-dot head h5">H</span>
-      <span className="performer-mark">Signer</span>
-    </div>
-  </div>
-
   <DatasetVideoCarousel />
 
 </section>
 
 <section id="annotation" className="content-section alt-section">
   <p className="section-label">Hybrid SMPL-X Annotation</p>
-  <h2>Multi-model fitting for expressive hands and nuanced faces.</h2>
   <p>PHOSA combines complementary estimators instead of relying on a single whole-body detector. DWPose provides dense 2D keypoints, HaMeR strengthens MANO hand estimates, multi-view triangulation recovers 3D supervision, and INFERNO refines facial expressions. Temporal initialization and SmoothNet reduce high-frequency artifacts across frames.</p>
 
 
   <Wide>
     <Figure>
-      <Picture slot="figure" src="paper-assets/annotation_pipeline.pdf" alt="PHOSA hybrid SMPL-X fitting pipeline fusing multi-view pose, hand mesh, triangulation, and facial expression estimation." />
-      <Fragment slot="caption">The annotation pipeline is also applicable to monocular RGB settings by removing the triangulation stage.</Fragment>
+      <PublicImage slot="figure" src="resources/paper_assets/annotation_pipeline.png" alt="PHOSA hybrid SMPL-X fitting pipeline fusing multi-view pose, hand mesh, triangulation, and facial expression estimation." />
     </Figure>
     <AnnotationVideoDuo />
   </Wide>
@@ -114,29 +86,22 @@ import AnnotationVideoDuo from "./components/AnnotationVideoDuo.astro";
 
 <section id="method" className="content-section method-section">
   <p className="section-label">PHOSA Method</p>
-  <h2>Decouple the avatar where sign language carries meaning.</h2>
   <p>Existing avatar models often learn a single whole-body representation, forcing fine hand and facial motion to compete with coarse body movement. PHOSA separates Gaussian maps into body, head, and hands, then applies partial hand kinematic decoupling so hand pose maps depend on hand gestures rather than global body pose.</p>
 
-  <div className="method-grid">
-    <article><h3>Body branch</h3><p>Captures global pose-conditioned appearance and clothing motion.</p></article>
-    <article><h3>Head branch</h3><p>Focuses network capacity on facial expression and mouthing.</p></article>
-    <article><h3>Hand branch</h3><p>Fixes body joints while preserving hand mobility for better gesture generalization.</p></article>
-    <article><h3>Motion-aware sampling</h3><p>Filters motion-blurred frames and balances gesture categories during training.</p></article>
-  </div>
 
   <Figure>
-    <Picture slot="figure" src="paper-assets/avatar_pipeline.pdf" alt="PHOSA avatar pipeline with body, head, and hand StyleUNet branches predicting Gaussian maps for photorealistic sign avatar rendering." />
-    <Fragment slot="caption">PHOSA predicts pose-dependent Gaussian attributes in canonical space, deforms them with LBS, and renders the animated avatar through differentiable rasterization.</Fragment>
+    <PublicImage slot="figure" src="resources/paper_assets/avatar_pipeline.png" alt="PHOSA avatar pipeline with body, head, and hand StyleUNet branches predicting Gaussian maps for photorealistic sign avatar rendering." />
   </Figure>
 </section>
 
 <section id="results" className="content-section results-section">
-  <h2>Benchmark Results</h2>
+  <p className="section-label">Benchmark Results</p>
+  <BenchmarkResultsTable />
+  <ResultsVideoCarousels />
 </section>
 
 <section id="citation" className="content-section citation-section">
   <p className="section-label">Citation</p>
-  <h2>BibTeX</h2>
 
 ```bibtex
 @inproceedings{wang2026phosa,

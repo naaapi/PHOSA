@@ -40,6 +40,14 @@ const {
 const pageTitle = `${title}: ${subtitle ?? "Photorealistic 3D Sign Avatar Modeling and Benchmark"}`;
 const baseUrl = import.meta.env.BASE_URL;
 const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+const tocItems = [
+  { href: "#abstract", label: "Abstract" },
+  { href: "#dataset", label: "Dataset" },
+  { href: "#annotation", label: "Annotation" },
+  { href: "#method", label: "Method" },
+  { href: "#results", label: "Results" },
+  { href: "#citation", label: "Citation" },
+] as const;
 ---
 
 <!doctype html>
@@ -66,14 +74,19 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     <header class="site-hero">
       <nav class="hero-nav" aria-label="Primary navigation">
         <a class="brand-mark" href="#top" aria-label="PHOSA home">
+          <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="2" y="2" width="60" height="60" rx="16" />
+            <path class="brand-icon-arc brand-icon-arc-left" d="M14 22c-2.9 4.4-4.4 9.3-4.4 14.6" />
+            <path class="brand-icon-arc brand-icon-arc-right" d="M49.5 15.5c4 3.1 6.2 7.6 6.6 13.4" />
+            <path
+              class="brand-icon-hand"
+              d="M24.6 38.8V18.3c0-2.2 1.4-3.7 3.3-3.7s3.3 1.5 3.3 3.7v14.6V14.6c0-2.2 1.4-3.7 3.3-3.7s3.3 1.5 3.3 3.7v18.3V18.1c0-2.2 1.4-3.7 3.3-3.7s3.3 1.5 3.3 3.7v16.4V23.8c0-2.1 1.4-3.6 3.2-3.6s3.2 1.5 3.2 3.6v15.5c0 8.6-6.3 14.1-15.3 14.1h-3.1c-5.5 0-9.5-2.4-12.3-7.1l-5-8.5c-1.1-1.9-.6-4.1 1.1-5.1 1.8-1.1 3.9-.5 5 1.3l3.4 4.8Z"
+            />
+            <circle class="brand-icon-dot brand-icon-dot-a" cx="16.6" cy="18.1" r="2.4" />
+            <circle class="brand-icon-dot brand-icon-dot-b" cx="51.2" cy="12.2" r="2.2" />
+          </svg>
           <span>PHOSA</span>
         </a>
-        <div class="nav-links">
-          <a href="#dataset">Dataset</a>
-          <a href="#method">Method</a>
-          <a href="#results">Results</a>
-          <a href="#citation">Citation</a>
-        </div>
       </nav>
 
       <div id="top" class="hero-copy">
@@ -134,6 +147,18 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
       </a>
     </header>
 
+    <aside class="section-toc" aria-label="Section navigation">
+      <nav>
+        {
+          tocItems.map((item) => (
+            <a class="section-toc-link" href={item.href}>
+              <span>{item.label}</span>
+            </a>
+          ))
+        }
+      </nav>
+    </aside>
+
     <main class="project-main">
       <Content components={{ table: Table }} />
     </main>
@@ -143,5 +168,57 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         Built with the <a href="https://github.com/RomanHauksson/academic-project-astro-template">Astro academic project template</a>.
       </p>
     </footer>
+
+    <script>
+      const toc = document.querySelector<HTMLElement>(".section-toc");
+      const hero = document.querySelector<HTMLElement>(".site-hero");
+      const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".section-toc-link"));
+      const tocSections = tocLinks.flatMap((link) => {
+        const href = link.getAttribute("href");
+        const target = href ? document.querySelector(href) : null;
+        return target instanceof HTMLElement ? [{ link, target }] : [];
+      });
+
+      if (toc && hero) {
+        let frame: number | null = null;
+
+        const syncToc = () => {
+          const heroBottom = hero.getBoundingClientRect().bottom;
+          toc.classList.toggle("is-visible", heroBottom <= 12);
+
+          let activeItem = tocSections[0];
+          const activationLine = window.innerHeight * 0.38;
+
+          tocSections.forEach((item) => {
+            if (item.target.getBoundingClientRect().top <= activationLine) {
+              activeItem = item;
+            }
+          });
+
+          tocSections.forEach((item) => {
+            const isActive = item === activeItem;
+            item.link.classList.toggle("is-active", isActive);
+            if (isActive) {
+              item.link.setAttribute("aria-current", "true");
+            } else {
+              item.link.removeAttribute("aria-current");
+            }
+          });
+
+          frame = null;
+        };
+
+        const scheduleSync = () => {
+          if (frame === null) {
+            frame = window.requestAnimationFrame(syncToc);
+          }
+        };
+
+        window.addEventListener("scroll", scheduleSync, { passive: true });
+        window.addEventListener("resize", scheduleSync);
+        window.addEventListener("load", scheduleSync);
+        scheduleSync();
+      }
+    </script>
   </body>
 </html>

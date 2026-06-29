@@ -11,8 +11,14 @@ import react from "@astrojs/react";
 
 import astroExpressiveCode from "astro-expressive-code";
 
+const isProductionBuild = process.env.NODE_ENV === "production";
+const base =
+  process.env.ASTRO_BASE_PATH ?? (isProductionBuild ? "/phosa-project-page" : "/");
+
 // https://astro.build/config
 export default defineConfig({
+  site: "https://naaapi.github.io",
+  base,
   vite: {
     plugins: [tailwindcss()],
   },

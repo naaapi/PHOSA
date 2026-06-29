@@ -1,7 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="PHOSA">
-  <rect width="128" height="128" rx="20" fill="#161616" />
-  <path d="M26 78c11-30 26-45 45-45 14 0 25 7 31 21" fill="none" stroke="#d5962a" stroke-width="10" stroke-linecap="round" />
-  <path d="M27 83h21c8 0 13-4 16-12l7-20 7 20c3 8 8 12 16 12h8" fill="none" stroke="#fffaf0" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
-  <circle cx="92" cy="38" r="8" fill="#b63c34" />
-  <circle cx="38" cy="39" r="8" fill="#006d77" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="PHOSA sign language logo">
+  <rect width="128" height="128" rx="30" fill="#f7f4ed" />
+  <rect x="7" y="7" width="114" height="114" rx="25" fill="#fffdf8" stroke="#ded6c8" stroke-width="5" />
+  <path d="M25 44c-7 10-10 21-10 34" fill="none" stroke="#b63c34" stroke-width="8" stroke-linecap="round" />
+  <path d="M97 30c10 8 15 19 16 33" fill="none" stroke="#d5962a" stroke-width="8" stroke-linecap="round" />
+  <path
+    d="M49 77V36c0-4.4 2.8-7.4 6.6-7.4s6.6 3 6.6 7.4v29.2V28.6c0-4.4 2.8-7.4 6.6-7.4s6.6 3 6.6 7.4v36.6V35.6c0-4.4 2.8-7.4 6.6-7.4s6.6 3 6.6 7.4v32.8V47.2c0-4.2 2.8-7.2 6.4-7.2s6.4 3 6.4 7.2v31c0 17.2-12.6 28.2-30.6 28.2h-6.2c-11 0-19-4.8-24.6-14.2l-10-17c-2.2-3.8-1.2-8.2 2.2-10.2 3.6-2.2 7.8-1 10 2.6L49 77Z"
+    fill="none"
+    stroke="#006d77"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="30" cy="36" r="5" fill="#b63c34" />
+  <circle cx="100" cy="24" r="5" fill="#d5962a" />
 </svg>

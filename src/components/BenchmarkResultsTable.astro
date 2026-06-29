@@ -1,0 +1,128 @@
+---
+const metricGroups = [
+  { label: "Full", metrics: ["PSNR↑", "SSIM↑", "LPIPS↓"] },
+  { label: "Hand", metrics: ["PSNR↑", "SSIM↑", "LPIPS↓"] },
+  { label: "Face", metrics: ["PSNR↑", "SSIM↑", "LPIPS↓"] },
+];
+
+const rows = [
+  ["SplattingAvatar", "23.71", "0.9625", "0.0494", "15.64", "0.6762", "0.3884", "16.90", "0.7633", "0.2423"],
+  ["GaussianAvatar", "24.23", "0.9633", "0.0428", "16.30", "0.6833", "0.3082", "17.78", "0.7737", "0.2086"],
+  ["AnimatableGS", "25.09", "0.9647", "0.0465", "16.95", "0.7002", "0.3135", "18.63", "0.7842", "0.2230"],
+  ["EVA", "25.56", "0.9667", "0.0436", "17.43", "0.7154", "0.2869", "19.21", "0.8000", "0.1964"],
+  ["MmlpHuman", "25.91", "0.9652", "0.0460", "17.41", "0.7084", "0.2675", "19.38", "0.8025", "0.1869"],
+  ["Ours", "27.03", "0.9689", "0.0393", "18.55", "0.7325", "0.2568", "20.60", "0.8189", "0.1757"],
+];
+---
+
+<div class="benchmark-table-wrap" role="region" aria-label="Benchmark results table" tabindex="0">
+  <table class="benchmark-table">
+    <thead>
+      <tr>
+        <th scope="col" rowspan="2" class="method-col">Method</th>
+        {metricGroups.map((group) => (
+          <th scope="colgroup" colspan="3" class="metric-group">{group.label}</th>
+        ))}
+      </tr>
+      <tr>
+        {metricGroups.flatMap((group) =>
+          group.metrics.map((metric) => (
+            <th scope="col" class="metric-col">{metric}</th>
+          )),
+        )}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => {
+        const isOurs = row[0] === "Ours";
+        return (
+          <tr>
+            <th scope="row" class="method-col">{row[0]}</th>
+            {row.slice(1).map((value) => (
+              <td>{isOurs ? <strong>{value}</strong> : value}</td>
+            ))}
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .benchmark-table-wrap {
+    margin: 1.8rem 0 2.4rem;
+    overflow-x: auto;
+    border: 1px solid var(--phosa-line);
+    border-radius: 8px;
+    background: var(--phosa-panel);
+    box-shadow: 0 18px 58px rgb(23 21 18 / 8%);
+  }
+
+  .benchmark-table {
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    table-layout: auto;
+  }
+
+  .benchmark-table th,
+  .benchmark-table td {
+    border-bottom: 1px solid var(--phosa-line);
+    padding: 0.58rem 0.48rem;
+    color: var(--phosa-ink);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .benchmark-table thead th {
+    background: #eee8da;
+    color: var(--phosa-ink);
+    font-size: 0.78rem;
+    font-weight: 850;
+    text-transform: none;
+  }
+
+  .benchmark-table .method-col {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 8.6rem;
+    background: var(--phosa-panel);
+    text-align: left;
+  }
+
+  .benchmark-table thead .method-col {
+    z-index: 2;
+    background: #eee8da;
+  }
+
+  .benchmark-table .metric-group {
+    text-align: center;
+  }
+
+  .benchmark-table strong {
+    color: var(--phosa-ink);
+    font-weight: 900;
+  }
+
+  .benchmark-table tbody th,
+  .benchmark-table tbody td {
+    border-bottom: 0;
+  }
+
+  @media (max-width: 720px) {
+    .benchmark-table-wrap {
+      margin-top: 1.4rem;
+    }
+
+    .benchmark-table th,
+    .benchmark-table td {
+      padding: 0.52rem 0.42rem;
+      font-size: 0.74rem;
+    }
+  }
+</style>

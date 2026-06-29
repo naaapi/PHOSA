@@ -1,0 +1,291 @@
+---
+import { Icon } from "astro-icon/components";
+
+const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : import.meta.env.BASE_URL + "/";
+const withBase = (path: string) => baseUrl + path;
+
+const groups = [
+  {
+    key: "compare",
+    title: "Comparison with sota methods",
+    label: "Benchmark comparison videos",
+    aspect: "7200 / 1848",
+    videos: [
+      { src: withBase("resources/compare_videos/compare_video1.mp4"), label: "Comparison 1" },
+      { src: withBase("resources/compare_videos/compare_video3.mp4"), label: "Comparison 2" },
+    ],
+  },
+  {
+    key: "case",
+    title: "Novel pose synthesis results",
+    label: "Benchmark case videos",
+    aspect: "6000 / 1848",
+    videos: [
+      { src: withBase("resources/case_videos/case_video1.mp4"), label: "Case 1" },
+      { src: withBase("resources/case_videos/case_video2.mp4"), label: "Case 2" },
+      { src: withBase("resources/case_videos/case_video3.mp4"), label: "Case 3" },
+    ],
+  },
+];
+---
+
+<section class="results-video-stack" aria-label="Benchmark result video examples">
+  {
+    groups.map((group) => (
+      <article
+        class="results-video-carousel"
+        data-results-carousel={group.key}
+        style={`--results-video-aspect: ${group.aspect}`}
+        tabindex="0"
+        aria-label={group.label}
+      >
+        <header class="results-video-header">
+          <h3>{group.title}</h3>
+        </header>
+
+        <div class="results-video-stage">
+          {group.videos.map((video, index) => (
+            <figure class:list={["results-video-slide", { active: index === 0 }]} data-index={index}>
+              <video
+                src={video.src}
+                muted
+                loop
+                playsinline
+                controls
+                preload={index === 0 ? "auto" : "metadata"}
+                aria-label={video.label}
+              />
+            </figure>
+          ))}
+        </div>
+
+        <div class="results-video-controls">
+          <button class="results-video-prev" type="button" aria-label={`Show previous ${group.label}`}>
+            <Icon name="ri:arrow-left-s-line" aria-hidden="true" />
+          </button>
+          <div class="results-video-dots" aria-label={`${group.label} pagination`}>
+            {group.videos.map((video, index) => (
+              <button
+                class:list={["results-video-dot", { active: index === 0 }]}
+                type="button"
+                aria-label={`Show ${video.label}`}
+                data-index={index}
+              />
+            ))}
+          </div>
+          <button class="results-video-next" type="button" aria-label={`Show next ${group.label}`}>
+            <Icon name="ri:arrow-right-s-line" aria-hidden="true" />
+          </button>
+        </div>
+      </article>
+    ))
+  }
+</section>
+
+<script>
+  const resultsCarousels = document.querySelectorAll(".results-video-carousel");
+
+  resultsCarousels.forEach((carousel) => {
+    const slides = Array.from(
+      carousel.querySelectorAll(".results-video-slide"),
+    ) as HTMLElement[];
+    const videos = slides.map((slide) => slide.querySelector("video"));
+    const dots = Array.from(
+      carousel.querySelectorAll(".results-video-dot"),
+    ) as HTMLButtonElement[];
+    const prev = carousel.querySelector(
+      ".results-video-prev",
+    ) as HTMLButtonElement | null;
+    const next = carousel.querySelector(
+      ".results-video-next",
+    ) as HTMLButtonElement | null;
+
+    if (!prev || !next || slides.length === 0) {
+      return;
+    }
+
+    let current = 0;
+
+    function syncPlayback() {
+      videos.forEach((video, index) => {
+        if (!video) {
+          return;
+        }
+
+        if (index === current) {
+          void video.play().catch(() => undefined);
+        } else {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    }
+
+    function showSlide(index: number) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === current);
+      });
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === current);
+        dot.setAttribute("aria-current", dotIndex === current ? "true" : "false");
+      });
+      syncPlayback();
+    }
+
+    prev.addEventListener("click", () => showSlide(current - 1));
+    next.addEventListener("click", () => showSlide(current + 1));
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        showSlide(Number(dot.dataset.index ?? "0"));
+      });
+    });
+
+    carousel.addEventListener("keydown", (event) => {
+      if (!(event instanceof KeyboardEvent)) {
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        showSlide(current - 1);
+      }
+      if (event.key === "ArrowRight") {
+        showSlide(current + 1);
+      }
+    });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          syncPlayback();
+        } else {
+          videos.forEach((video) => video?.pause());
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(carousel);
+    showSlide(0);
+  });
+</script>
+
+<style>
+  .results-video-stack {
+    display: grid;
+    gap: 1.8rem;
+    margin: 2rem 0 0;
+  }
+
+  .results-video-carousel {
+    width: 100%;
+    outline: none;
+  }
+
+  .results-video-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .results-video-header h3 {
+    margin: 0;
+    color: var(--phosa-ink);
+    font-size: 1.15rem;
+    font-weight: 850;
+  }
+
+  .results-video-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--results-video-aspect);
+    overflow: hidden;
+    border: 1px solid var(--phosa-line);
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: 0 24px 80px rgb(23 21 18 / 12%);
+  }
+
+  .results-video-slide {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(1.25rem);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+  }
+
+  .results-video-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .results-video-slide video {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    object-fit: contain;
+  }
+
+  .results-video-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 0.9rem;
+  }
+
+  .results-video-prev,
+  .results-video-next,
+  .results-video-dot {
+    border: 1px solid var(--phosa-line);
+    background: var(--phosa-panel);
+    color: var(--phosa-ink);
+  }
+
+  .results-video-prev,
+  .results-video-next {
+    display: grid;
+    place-items: center;
+    width: 2.55rem;
+    height: 2.55rem;
+    border-radius: 8px;
+  }
+
+  .results-video-prev:hover,
+  .results-video-next:hover,
+  .results-video-dot:hover,
+  .results-video-dot.active {
+    border-color: var(--phosa-teal);
+    background: #eff8f6;
+    color: var(--phosa-teal);
+  }
+
+  .results-video-prev svg,
+  .results-video-next svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .results-video-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .results-video-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    padding: 0;
+  }
+
+  .results-video-dot.active {
+    width: 1.65rem;
+  }
+</style>
