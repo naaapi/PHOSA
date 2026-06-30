@@ -9,9 +9,10 @@ const withBase = (path: string) => baseUrl + path;
 const groups = [
   {
     key: "compare",
-    title: "Comparison with sota methods",
+    title: "Comparison on novel pose",
     label: "Benchmark comparison videos",
     aspect: "7200 / 1848",
+    methodLabels: ["SplattingAvatar", "GaussianAvatar", "AnimatableGS", "EVA", "Ours", "GT"],
     videos: [
       { src: withBase("resources/compare_videos/compare_video1.mp4"), label: "Comparison 1" },
       { src: withBase("resources/compare_videos/compare_video3.mp4"), label: "Comparison 2" },
@@ -60,6 +61,14 @@ const groups = [
             </figure>
           ))}
         </div>
+
+        {group.methodLabels && (
+          <div class="results-video-method-labels" aria-label="Methods shown in comparison video">
+            {group.methodLabels.map((method) => (
+              <span>{method}</span>
+            ))}
+          </div>
+        )}
 
         <div class="results-video-controls">
           <button class="results-video-prev" type="button" aria-label={`Show previous ${group.label}`}>
@@ -231,6 +240,25 @@ const groups = [
     object-fit: contain;
   }
 
+  .results-video-method-labels {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: start;
+    margin-top: 0.55rem;
+    color: var(--phosa-ink);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 850;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .results-video-method-labels span {
+    min-width: 0;
+    padding: 0 0.2rem;
+    overflow-wrap: anywhere;
+  }
+
   .results-video-controls {
     display: flex;
     align-items: center;
@@ -287,5 +315,11 @@ const groups = [
 
   .results-video-dot.active {
     width: 1.65rem;
+  }
+
+  @media (max-width: 620px) {
+    .results-video-method-labels {
+      font-size: 0.64rem;
+    }
   }
 </style>

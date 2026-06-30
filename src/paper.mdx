@@ -78,7 +78,7 @@ import BenchmarkResultsTable from "./components/BenchmarkResultsTable.astro";
 
   <Wide>
     <Figure>
-      <PublicImage slot="figure" src="resources/paper_assets/annotation_pipeline.png" alt="PHOSA hybrid SMPL-X fitting pipeline fusing multi-view pose, hand mesh, triangulation, and facial expression estimation." />
+      <PublicImage slot="figure" src="resources/paper_assets/annotation_pipeline.png" alt="PHOSA hybrid SMPL-X fitting pipeline fusing multi-view pose, hand mesh, triangulation, and facial expression estimation." loading="eager" priority width={1920} height={720} />
     </Figure>
     <AnnotationVideoDuo />
   </Wide>
@@ -90,7 +90,7 @@ import BenchmarkResultsTable from "./components/BenchmarkResultsTable.astro";
 
 
   <Figure>
-    <PublicImage slot="figure" src="resources/paper_assets/avatar_pipeline.png" alt="PHOSA avatar pipeline with body, head, and hand StyleUNet branches predicting Gaussian maps for photorealistic sign avatar rendering." />
+    <PublicImage slot="figure" src="resources/paper_assets/avatar_pipeline.png" alt="PHOSA avatar pipeline with body, head, and hand StyleUNet branches predicting Gaussian maps for photorealistic sign avatar rendering." loading="eager" priority width={2040} height={555} />
   </Figure>
 </section>
 

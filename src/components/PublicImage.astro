@@ -1,11 +1,27 @@
 ---
+import { Picture as AstroPicture } from "astro:assets";
+import annotationPipeline from "../assets/annotation_pipeline.png";
+import avatarPipeline from "../assets/avatar_pipeline.png";
+
 interface Props {
   src: string;
   alt: string;
   class?: string;
+  loading?: "eager" | "lazy";
+  priority?: boolean;
+  width?: number;
+  height?: number;
 }
 
-const { src, alt, class: className = "" } = Astro.props;
+const {
+  src,
+  alt,
+  class: className = "",
+  loading = "lazy",
+  priority = false,
+  width,
+  height,
+} = Astro.props;
 const baseUrl = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
   : import.meta.env.BASE_URL + "/";
@@ -13,12 +29,38 @@ const imageSrc =
   src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")
     ? src
     : baseUrl + src;
+
+const optimizedImages: Record<string, ImageMetadata> = {
+  "resources/paper_assets/annotation_pipeline.png": annotationPipeline,
+  "resources/paper_assets/avatar_pipeline.png": avatarPipeline,
+};
+const optimizedImage = optimizedImages[src];
+const imageClass = ["paper-figure-image", className].filter(Boolean).join(" ");
 ---
 
-<img
-  class:list={["paper-figure-image", className]}
-  src={imageSrc}
-  alt={alt}
-  loading="lazy"
-  decoding="async"
-/>
+{optimizedImage ? (
+  <AstroPicture
+    class={imageClass}
+    src={optimizedImage}
+    alt={alt}
+    layout="constrained"
+    formats={["avif", "webp"]}
+    fallbackFormat="png"
+    priority={priority}
+    loading={loading}
+    decoding="async"
+    fit="contain"
+    widths={[640, 960, 1280, 1600, optimizedImage.width]}
+    sizes="(max-width: 67rem) calc(100vw - 3rem), 64rem"
+  />
+) : (
+  <img
+    class={imageClass}
+    src={imageSrc}
+    alt={alt}
+    loading={loading}
+    decoding="async"
+    width={width}
+    height={height}
+  />
+)}
